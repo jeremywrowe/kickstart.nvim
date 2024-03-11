@@ -148,6 +148,17 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- [[ Custom Keymaps ]]
+
+vim.keymap.set('n', '<leader>tl', ':TestLast <CR>', { desc = 'Run last test' })
+vim.keymap.set('n', '<leader>tn', ':TestNearest <CR>', { desc = 'Run test at current line' })
+vim.keymap.set('n', '<leader>tf', ':TestFile <CR>', { desc = 'Run tests for the file' })
+
+vim.keymap.set('n', '<C-h>', ':NvimTmuxNavigateLeft<CR>', { desc = 'Navigate to the TMUX pane to the left'})
+vim.keymap.set('n', '<C-j>', ':NvimTmuxNavigateDown<CR>', { desc = 'Navigate to the TMUX pane below' })
+vim.keymap.set('n', '<C-k>', ':NvimTmuxNavigateUp<CR>', { desc = 'Navigate to the TMUX pane above'})
+vim.keymap.set('n', '<C-l>', ':NvimTmuxNavigateRight<CR>', { desc = 'Navigate to the TMUX pane to the right'  })
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -234,6 +245,27 @@ require('lazy').setup {
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
 
+  {
+    'vim-test/vim-test',
+    lazy = false,
+    config = function()
+      vim.g['test#strategy'] = 'vtr'
+    end,
+  },
+
+  {
+    'christoomey/vim-tmux-runner',
+    lazy = false,
+  },
+
+  {
+    'alexghergh/nvim-tmux-navigation',
+    lazy = false,
+    config = function()
+      require 'nvim-tmux-navigation'
+    end,
+  },
+
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following lua:
   --    require('gitsigns').setup({ ... })
@@ -279,6 +311,7 @@ require('lazy').setup {
         ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
         ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
         ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+        ['<leader>t'] = { name = '[T]est', _ = 'which_key_ignore' },
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
       }
     end,
@@ -613,12 +646,12 @@ require('lazy').setup {
       },
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use a sub-list to tell conform to run *until* a formatter
-        -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        javascript = { 'prettier' },
+        css = { 'prettier' },
+        html = { 'prettier' },
+        sh = { 'shfmt' },
+        rust = { 'rustfmt' },
+        ruby = { 'rubocop' },
       },
     },
   },
@@ -783,7 +816,7 @@ require('lazy').setup {
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'ruby', 'css', 'rust', 'typescript' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
