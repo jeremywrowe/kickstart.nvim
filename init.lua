@@ -157,10 +157,12 @@ vim.keymap.set('n', '<leader>tl', ':TestLast <CR>', { desc = 'Run last test' })
 vim.keymap.set('n', '<leader>tn', ':TestNearest <CR>', { desc = 'Run test at current line' })
 vim.keymap.set('n', '<leader>tf', ':TestFile <CR>', { desc = 'Run tests for the file' })
 
-vim.keymap.set('n', '<C-h>', ':NvimTmuxNavigateLeft<CR>', { desc = 'Navigate to the TMUX pane to the left'})
+vim.keymap.set('n', '<C-h>', ':NvimTmuxNavigateLeft<CR>', { desc = 'Navigate to the TMUX pane to the left' })
 vim.keymap.set('n', '<C-j>', ':NvimTmuxNavigateDown<CR>', { desc = 'Navigate to the TMUX pane below' })
-vim.keymap.set('n', '<C-k>', ':NvimTmuxNavigateUp<CR>', { desc = 'Navigate to the TMUX pane above'})
-vim.keymap.set('n', '<C-l>', ':NvimTmuxNavigateRight<CR>', { desc = 'Navigate to the TMUX pane to the right'  })
+vim.keymap.set('n', '<C-k>', ':NvimTmuxNavigateUp<CR>', { desc = 'Navigate to the TMUX pane above' })
+vim.keymap.set('n', '<C-l>', ':NvimTmuxNavigateRight<CR>', { desc = 'Navigate to the TMUX pane to the right' })
+
+vim.keymap.set('n', '<C-p>', ':NvimTreeToggle<CR>', { desc = 'Toggle NVIM tree' })
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -266,6 +268,18 @@ require('lazy').setup({
     lazy = false,
     config = function()
       require 'nvim-tmux-navigation'
+    end,
+  },
+
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {}
     end,
   },
 
