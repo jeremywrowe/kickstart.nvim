@@ -24,6 +24,7 @@ vim.opt.scrolloff = 10
 vim.keymap.set('n', '<leader>tl', ':TestLast <CR>', { desc = 'Run last test' })
 vim.keymap.set('n', '<leader>tn', ':TestNearest <CR>', { desc = 'Run test at current line' })
 vim.keymap.set('n', '<leader>tf', ':TestFile <CR>', { desc = 'Run tests for the file' })
+vim.keymap.set('n', '<leader>ts', ':TestSuite <CR>', { desc = 'Run tests for the suite' })
 
 vim.keymap.set('n', '<C-h>', ':NvimTmuxNavigateLeft<CR>', { desc = 'Navigate to the TMUX pane to the left' })
 vim.keymap.set('n', '<C-j>', ':NvimTmuxNavigateDown<CR>', { desc = 'Navigate to the TMUX pane below' })
@@ -81,7 +82,6 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth',
   'tpope/vim-surround',
 
