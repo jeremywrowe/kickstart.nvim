@@ -31,7 +31,7 @@ vim.keymap.set('n', '<C-j>', ':NvimTmuxNavigateDown<CR>', { desc = 'Navigate to 
 vim.keymap.set('n', '<C-k>', ':NvimTmuxNavigateUp<CR>', { desc = 'Navigate to the TMUX pane above' })
 vim.keymap.set('n', '<C-l>', ':NvimTmuxNavigateRight<CR>', { desc = 'Navigate to the TMUX pane to the right' })
 
-vim.keymap.set('n', '<C-p>', ':NvimTreeToggle<CR>', { desc = 'Toggle NVIM tree' })
+vim.keymap.set('n', '<C-p>', ':NvimTreeFindFileToggle<CR>', { desc = 'Toggle NVIM tree' })
 
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
