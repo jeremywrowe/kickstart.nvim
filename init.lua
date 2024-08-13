@@ -123,19 +123,6 @@ require('lazy').setup({
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
-    config = function() -- This is the function that runs, AFTER loading
-      require('which-key').setup()
-
-      -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>t'] = { name = '[T]est', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-      }
-    end,
   },
 
   { -- Fuzzy Finder (files, lsp, etc)
@@ -299,6 +286,7 @@ require('lazy').setup({
         'stylua', -- Used to format lua code
         'codelldb', -- Used to debug rust/cpp
         'sorbet',
+        'rust-analyzer',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -415,44 +403,6 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'mrcjkb/rustaceanvim',
-    version = '^4', -- Recommended
-    lazy = false, -- This plugin is already lazy
-    config = function()
-      local dap, dapui = require 'dap', require 'dapui'
-
-      vim.keymap.set('n', '<Leader>dt', dap.toggle_breakpoint, { desc = 'Debug Toggle Breakpoint' })
-      vim.keymap.set('n', '<Leader>dc', dap.continue, { desc = 'Debug Continue' })
-      vim.keymap.set('n', '<Leader>di', dap.step_into, { desc = 'Debug Step Into' })
-      vim.keymap.set('n', '<Leader>dov', dap.step_over, { desc = 'Debug Step Over' })
-      vim.keymap.set('n', '<Leader>dot', dap.step_out, { desc = 'Debug Step Out' })
-      vim.keymap.set('n', '<Leader>dx', dap.terminate, { desc = 'Debug Exit' })
-      vim.keymap.set('n', '<Leader>dr', dap.restart_frame, { desc = 'Debug Restart Frame' })
-
-      vim.keymap.set('n', '<Leader>dr', ':RustLsp debuggables<CR>', { desc = 'Rust LSP Debuggables' })
-
-      dapui.setup()
-
-      dap.listeners.before.attach.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.launch.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated.dapui_config = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited.dapui_config = function()
-        dapui.close()
-      end
-    end,
-  },
-  {
-    'rcarriga/nvim-dap-ui',
-    dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio', 'mrcjkb/rustaceanvim' },
-  },
-
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -461,7 +411,7 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'ruby', 'css', 'rust', 'typescript' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'ruby', 'css', 'rust', 'typescript', 'query' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
