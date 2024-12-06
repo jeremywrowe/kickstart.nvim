@@ -2,8 +2,6 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 vim.opt.number = true
-vim.opt.mouse = 'a'
-vim.opt.showmode = false
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.breakindent = true
 vim.opt.undofile = true
@@ -18,6 +16,13 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 vim.opt.scrolloff = 10
+
+-- [[ Mouse Events ]]
+vim.opt.mousemoveevent = true
+vim.opt.mouse = 'a'
+vim.opt.mousemoveevent = true
+vim.opt.mousemodel = 'popup'
+vim.opt.mousescroll = 'ver:1,hor:1'
 
 -- [[ Custom Keymaps ]]
 
@@ -417,6 +422,80 @@ require('lazy').setup({
         highlight = { enable = true },
         indent = { enable = true },
       }
+    end,
+  },
+  {
+    'rcarriga/nvim-dap-ui',
+    dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
+    config = function()
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      -- Clear everything
+      dap.adapters = {}
+      dap.configurations = {}
+
+      -- Setup codelldb adapter
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = '${port}',
+        executable = {
+          command = vim.fn.stdpath 'data' .. '/mason/bin/codelldb',
+          args = { '--port', '${port}' },
+        },
+      }
+
+      -- Load VSCode configurations with a wrapper
+      local vscode_config_exists = vim.fn.filereadable '.vscode/launch.json' == 1
+      if vscode_config_exists then
+        require('dap.ext.vscode').load_launchjs(nil, { codelldb = { 'rust' } })
+      else
+        -- Optionally set a basic default configuration if no VSCode config exists
+        dap.configurations.rust = {
+          {
+            name = 'Debug executable',
+            type = 'codelldb',
+            request = 'launch',
+            program = function()
+              return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/target/debug/', 'file')
+            end,
+            cwd = '${workspaceFolder}',
+            stopOnEntry = false,
+          },
+        }
+      end
+
+      -- Prevent any default configurations from being added
+      dap.defaults.fallback.force_external_configurations = true
+
+      dapui.setup()
+
+      dap.listeners.after.event_initialized['dapui_config'] = function()
+        dapui.open()
+      end
+
+      -- Configure the adapter
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = '${port}',
+        executable = {
+          command = vim.fn.stdpath 'data' .. '/mason/bin/codelldb',
+          args = { '--port', '${port}' },
+        },
+      }
+
+      local function map(lhs, rhs, desc)
+        vim.keymap.set('n', lhs, rhs, { desc = 'Debug: ' .. desc })
+      end
+
+      map('<F5>', dap.continue, 'Start/Continue')
+      map('<F10>', dap.step_over, 'Step Over')
+      map('<F11>', dap.step_into, 'Step Into')
+      map('<F12>', dap.step_out, 'Step Out')
+      map('<Leader>b', dap.toggle_breakpoint, 'Toggle Breakpoint')
+      map('<Leader>dr', dap.repl.open, 'Open REPL')
+      map('<Leader>dl', dap.run_last, 'Run Last')
+      map('<Leader>dc', dapui.close, 'Close UI')
     end,
   },
 }, {
