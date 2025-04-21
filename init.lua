@@ -65,6 +65,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.keymap.set('n', '<leader>W', function()
+  local cursor_pos = vim.fn.getpos '.'
+  vim.cmd [[%s/\s\+$//e]]
+  vim.cmd [[%s/\([^\s	]\)\s\{2,}\([^\s	]\)/\1 \2/ge]]
+  vim.cmd [[retab]]
+  vim.fn.setpos('.', cursor_pos)
+  print 'All whitespace issues fixed'
+end, { desc = 'Fix all whitespace issues' })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -78,6 +87,67 @@ require('lazy').setup({
   'tpope/vim-sleuth',
   'tpope/vim-surround',
   'numToStr/Comment.nvim',
+  {
+    'lewis6991/gitsigns.nvim',
+    opts = {
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
+      on_attach = function(bufnr)
+        local gs = package.loaded.gitsigns
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Keymaps
+        map('n', ']c', function()
+          if vim.wo.diff then
+            return ']c'
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, desc = 'Next git hunk' })
+
+        map('n', '[c', function()
+          if vim.wo.diff then
+            return '[c'
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, desc = 'Previous git hunk' })
+
+        map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage git hunk' })
+        map('n', '<leader>hr', gs.reset_hunk, { desc = 'Reset git hunk' })
+        map('n', '<leader>hS', gs.stage_buffer, { desc = 'Stage buffer' })
+        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'Undo stage git hunk' })
+        map('n', '<leader>hR', gs.reset_buffer, { desc = 'Reset buffer' })
+        map('n', '<leader>hp', gs.preview_hunk, { desc = 'Preview git hunk' })
+        map('n', '<leader>hb', function()
+          gs.blame_line { full = true }
+        end, { desc = 'Blame line' })
+        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'Toggle current line blame' })
+        map('n', '<leader>hd', gs.diffthis, { desc = 'Diff this' })
+        map('n', '<leader>hD', function()
+          gs.diffthis '~'
+        end, { desc = 'Diff this ~' })
+        map('n', '<leader>td', gs.toggle_deleted, { desc = 'Toggle deleted' })
+
+        -- Text object
+        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+      end,
+    },
+  },
   { 'mhinz/vim-crates', ft = 'toml' },
   {
     'vim-test/vim-test',
@@ -292,6 +362,7 @@ require('lazy').setup({
         'codelldb', -- Used to debug rust/cpp
         'sorbet',
         'rust-analyzer',
+        'eslint-lsp',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -317,6 +388,8 @@ require('lazy').setup({
       },
       formatters_by_ft = {
         lua = { 'stylua' },
+        typescript = { 'prettier' },
+        typescriptreact = { 'prettier' },
         javascript = { 'prettier' },
         css = { 'prettier' },
         html = { 'prettier' },
@@ -516,4 +589,20 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
+})
+
+local group = vim.api.nvim_create_augroup('betterment', { clear = true })
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Strip trailing whitespace on save',
+  group = group,
+
+  callback = function(_event)
+    local l = vim.fn.line '.'
+    local c = vim.fn.col '.'
+
+    vim.cmd '%s/\\s\\+$//e'
+
+    vim.fn.cursor(l, c)
+  end,
 })
