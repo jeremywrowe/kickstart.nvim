@@ -287,7 +287,7 @@ require('lazy').setup({
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for neovim
+      'saghen/blink.cmp',
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -330,51 +330,44 @@ require('lazy').setup({
         end,
       })
 
+      local mlsp = require 'mason-lspconfig'
+
+      -- Set default capabilities for all LSP servers
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-      local servers = {
-
-        lua_ls = {
-          settings = {
-            Lua = {
-              runtime = { version = 'LuaJIT' },
-              workspace = {
-                checkThirdParty = false,
-                library = {
-                  '${3rd}/luv/library',
-                  unpack(vim.api.nvim_get_runtime_file('', true)),
-                },
-              },
-              completion = {
-                callSnippet = 'Replace',
-              },
-            },
-          },
-        },
-      }
-
-      require('mason').setup()
-
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format lua code
+      local configured_servers = {
         'codelldb', -- Used to debug rust/cpp
-        'sorbet',
-        'rust-analyzer',
         'eslint-lsp',
-      })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
-      require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
+        'graphql',
+        'kotlin_language_server',
+        'lua_ls',
+        'ruby_lsp',
+        'rust_analyzer',
+        'sorbet',
+        'sourcekit',
+        'stylua', -- Used to format lua code
+        'tailwindcss',
+        'yamlls',
       }
+
+      mlsp.setup {
+        ensure_installed = {},
+        automatic_enable = false,
+      }
+
+      for _, server in ipairs(mlsp.get_installed_servers()) do
+        if not vim.tbl_contains(configured_servers, server) then
+          table.insert(configured_servers, server)
+        end
+      end
+
+      for _, server in ipairs(configured_servers) do
+        vim.lsp.config(server, {
+          capabilities = capabilities,
+        })
+        
+        vim.lsp.enable(server)
+      end
     end,
   },
 
