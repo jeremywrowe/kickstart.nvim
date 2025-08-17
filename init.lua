@@ -297,6 +297,8 @@ require('lazy').setup({
       { 'j-hui/fidget.nvim', opts = {} },
     },
     config = function()
+      require('mason').setup()
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -365,7 +367,7 @@ require('lazy').setup({
         vim.lsp.config(server, {
           capabilities = capabilities,
         })
-        
+
         vim.lsp.enable(server)
       end
     end,
